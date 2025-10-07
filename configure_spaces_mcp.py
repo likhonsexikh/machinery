@@ -67,6 +67,26 @@ POPULAR_SPACES: List[SpaceServer] = [
         ),
     ),
     SpaceServer(
+        space_id="modelcontextprotocol/sequential-thinking",
+        display_name="sequential-thinking",
+        transport="command",
+        entrypoint="npx -y @modelcontextprotocol/server-sequential-thinking",
+        description=(
+            "Reference implementation of the Sequential Thinking MCP server, ideal for"
+            " experimenting with tool-initiated sub-tasks and plan/act loops."
+        ),
+    ),
+    SpaceServer(
+        space_id="modelcontextprotocol/memory",
+        display_name="memory",
+        transport="command",
+        entrypoint="npx -y @modelcontextprotocol/server-memory",
+        description=(
+            "Demonstration MCP server that surfaces read/write memory primitives for"
+            " stateful agent experimentation."
+        ),
+    ),
+    SpaceServer(
         space_id="meta-llama/llama-3-8b-instruct",
         display_name="llama-3-8b-chat",
         transport="http",

@@ -1,0 +1,134 @@
+name: PR Automation
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Which pull request operation should run"
+        required: true
+        type: choice
+        options:
+          - create
+          - approve
+          - run-tests
+      head:
+        description: "Head branch for the PR (create action only)"
+        required: false
+        type: string
+      base:
+        description: "Base branch for the PR (create action only)"
+        required: false
+        type: string
+      title:
+        description: "Pull request title (create action only)"
+        required: false
+        type: string
+      body:
+        description: "Pull request body (create action only)"
+        required: false
+        type: string
+      pr-number:
+        description: "Pull request number (approve/run-tests actions)"
+        required: false
+        type: string
+      review-body:
+        description: "Optional approval note (approve action only)"
+        required: false
+        type: string
+
+permissions:
+  actions: write
+  checks: write
+  contents: write
+  deployments: write
+  discussions: write
+  issues: write
+  packages: write
+  pull-requests: write
+  repository-projects: write
+  security-events: write
+  statuses: write
+
+jobs:
+  run-command:
+    name: Execute pull request automation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install GitHub CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gh
+
+      - name: Validate inputs
+        env:
+          ACTION: ${{ github.event.inputs.action }}
+          HEAD: ${{ github.event.inputs.head }}
+          BASE: ${{ github.event.inputs.base }}
+          TITLE: ${{ github.event.inputs.title }}
+          BODY: ${{ github.event.inputs.body }}
+          PR_NUMBER: ${{ github.event.inputs.pr-number }}
+        run: |
+          set -euo pipefail
+          case "$ACTION" in
+            create)
+              for var in HEAD BASE TITLE; do
+                if [ -z "${!var}" ]; then
+                  echo "::error::Missing required input '$var' for create action"
+                  exit 1
+                fi
+              done
+              ;;
+            approve|run-tests)
+              if [ -z "$PR_NUMBER" ]; then
+                echo "::error::pr-number is required for the $ACTION action"
+                exit 1
+              fi
+              ;;
+            *)
+              echo "::error::Unsupported action '$ACTION'"
+              exit 1
+              ;;
+          esac
+
+      - name: Execute request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACTION: ${{ github.event.inputs.action }}
+          HEAD: ${{ github.event.inputs.head }}
+          BASE: ${{ github.event.inputs.base }}
+          TITLE: ${{ github.event.inputs.title }}
+          BODY: ${{ github.event.inputs.body }}
+          PR_NUMBER: ${{ github.event.inputs.pr-number }}
+          REVIEW_BODY: ${{ github.event.inputs.review-body }}
+        run: |
+          set -euo pipefail
+          case "$ACTION" in
+            create)
+              gh pr create \
+                --head "$HEAD" \
+                --base "$BASE" \
+                --title "$TITLE" \
+                ${BODY:+--body "$BODY"}
+              ;;
+            approve)
+              gh pr review "$PR_NUMBER" --approve ${REVIEW_BODY:+--body "$REVIEW_BODY"}
+              ;;
+            run-tests)
+              gh pr checkout "$PR_NUMBER"
+              python -m compileall configure_spaces_mcp.py
+              python configure_spaces_mcp.py --list-only
+              ;;
+          esac
+
+      - name: Upload MCP catalogue snapshot
+        if: github.event.inputs.action == 'run-tests'
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcp-spaces
+          path: mcp_spaces.json
+          if-no-files-found: ignore
