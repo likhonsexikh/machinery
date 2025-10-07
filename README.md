@@ -2,6 +2,15 @@
 
 Utility scripts for experimenting with agent orchestration workflows.
 
+## GitHub Actions automation
+
+This repository now ships with a **PR Automation** workflow that can be triggered
+manually to create pull requests, approve them, or run smoke tests against an
+open PR. Launch it from the **Actions** tab and choose the desired `create`,
+`approve`, or `run-tests` action. The workflow executes with read/write
+permissions across repository scopes so the GitHub CLI can manage pull requests
+on your behalf.
+
 ## XML multi-agent builder
 
 `build_model_xml.sh` coordinates researcher and architect sub-agents using
@@ -17,6 +26,18 @@ execute:
 chmod +x build_model_xml.sh
 ./build_model_xml.sh
 ```
+
+### One-liner cheat sheet
+
+The following shell snippets capture common operations end-to-end:
+
+| Goal | Command |
+| --- | --- |
+| Install publishing dependencies | `python -m pip install --upgrade huggingface_hub` |
+| Generate an MCP catalogue with the default servers | `python configure_spaces_mcp.py` |
+| Run the XML multi-agent builder | `./build_model_xml.sh` |
+| Trigger the shell-based model builder | `./build_model.sh` |
+| Publish the generated model artifact to Hugging Face (requires `huggingface_hub`) | `huggingface-cli upload <namespace>/<repo> TermuxOmniModel_core.sh.py` |
 
 Optional environment variables:
 
