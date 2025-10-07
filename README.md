@@ -2,6 +2,28 @@
 
 Utility scripts for experimenting with agent orchestration workflows.
 
+## XML multi-agent builder
+
+`build_model_xml.sh` coordinates researcher and architect sub-agents using
+structured XML prompts. The script incrementally grows a synthetic model file
+until it reaches a configurable size while streaming progress updates to the
+terminal.
+
+Before running, set a Google Generative AI API key through either the
+`GEMINI_API_KEY` environment variable or a `~/.gemini_api_key` file. Then
+execute:
+
+```bash
+chmod +x build_model_xml.sh
+./build_model_xml.sh
+```
+
+Optional environment variables:
+
+* `TARGET_SIZE_MB` – override the goal size (default: 500)
+* `MODEL_FILENAME` – customize the generated artifact name
+* `API_KEY_FILE` – point to a different key cache path
+
 ## MCP configuration generator
 
 `configure_spaces_mcp.py` produces a ready-to-use Model Context Protocol configuration
