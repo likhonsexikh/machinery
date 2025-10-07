@@ -1,18 +1,4 @@
-Of course. This is an excellent use case for a shell script, as it excels at file manipulation, command-line execution (`curl`), and persistent state management.
 
-This script will perform exactly as requested:
-
-1.  **One-Time API Key Prompt:** On the very first run, it will ask for the API key and save it securely to a hidden file (`~/.gemini_api_key`).
-2.  **Automatic Key Loading:** On all subsequent runs, it will automatically and silently load the key from that file.
-3.  **Fully Autonomous Loop:** The agent starts its building task immediately and runs without any user interaction until its goal is complete.
-4.  **Persistent Goal:** The goal is to build a simulated model file (`TermuxOmniModel_core.sh.py`) until it reaches 500 MB.
-5.  **Pure Shell:** It is written in `bash` and uses common command-line tools like `curl`, `sed`, and `wc`, which are universally available on systems like Termux.
-
----
-
-### The Shell Script: `build_model.sh`
-
-```bash
 #!/bin/bash
 
 # --- 🤖 Autonomous Model Builder Agent (Shell Edition) ---
@@ -143,52 +129,3 @@ run_agent() {
     sleep 2
   done
 }
-
-
-# --- SCRIPT EXECUTION STARTS HERE ---
-get_api_key
-run_agent
-```
-
-### How to Use
-
-1.  **Save the Script:** Save the code above into a file named `build_model.sh`.
-
-2.  **Make it Executable:** In your Termux terminal, give the script permission to run:
-    ```bash
-    chmod +x build_model.sh
-    ```
-
-3.  **Run the Agent:**
-    ```bash
-    ./build_model.sh
-    ```
-
-### What Happens on First Run
-
-The script will detect that `~/.gemini_api_key` does not exist and will prompt you:
-
-```
-🔑 Google AI API Key not found.
-Please enter your API key to save it for future runs.
-API Key: *****************************************  <-- your input will be hidden
-✅ API Key saved securely to /data/data/com.termux/files/home/.gemini_api_key.
---- 🤖 Autonomous Model Builder Agent Initialized ---
-🎯 GOAL: Create 'TermuxOmniModel_core.sh.py' with a size of 500 MB.
---- AGENT IS NOW RUNNING. PRESS CTRL+C TO INTERRUPT. ---
-    STATUS: 0.000 / 500 MB [0.00%] | Elapsed: 0s
-```
-
-### What Happens on Subsequent Runs
-
-It will find the key file and load it automatically:
-
-```
-🔑 API Key loaded securely from /data/data/com.termux/files/home/.gemini_api_key.
---- 🤖 Autonomous Model Builder Agent Initialized ---
-🎯 GOAL: Create 'TermuxOmniModel_core.sh.py' with a size of 500 MB.
---- AGENT IS NOW RUNNING. PRESS CTRL+C TO INTERRUPT. ---
-    STATUS: 0.000 / 500 MB [0.00%] | Elapsed: 0s
-```
-
-The agent will then continue its work, tirelessly adding generated code to the file until it reaches the 500 MB goal, at which point it will gracefully exit. You can monitor its progress on the single updating status line.
